@@ -10,6 +10,7 @@
 
 # Library imports
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import os
@@ -20,7 +21,7 @@ offset = 100
 folders = ["LAYING","SITTING","STANDING","WALKING","WALKING_DOWNSTAIRS","WALKING_UPSTAIRS"]
 classes = {"WALKING":1,"WALKING_UPSTAIRS":2,"WALKING_DOWNSTAIRS":3,"SITTING":4,"STANDING":5,"LAYING":6}
 
-combined_dir = os.path.join("Combined")
+combined_dir = os.path.join(r"D:\mithil\IIT GN\Year_3\Semester 2\Machine Learning\assignment-1-ml-doofenshmirtz-evil-inc\Combined")
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
                                                 # Train Dataset
@@ -82,6 +83,16 @@ print("Training data shape: ",X_train.shape)
 print("Testing data shape: ",X_test.shape)
 print("Validation data shape: ",X_val.shape)
 
+
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+                                                # Storing The Final Dataset
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+np.save('X_train',X_train)
+np.save('y_train',y_train)
+np.save('X_test',X_test)
+np.save('y_test',y_test)
+np.save('X_val',X_val)
+np.save('y_val',y_val)
 
-
+print("Successfully saved Training Data")
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
