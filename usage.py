@@ -64,7 +64,7 @@ for criteria in ["information_gain", "gini_index"]:
     tree = DecisionTree(criterion=criteria)  # Split based on Inf. Gain
     tree.fit(X, y)
     y_hat = tree.predict(X)
-    tree.plot()
+    # tree.plot()
     print("Criteria :", criteria)
     print("Accuracy: ", accuracy(y_hat, y))
     for cls in y.unique():
