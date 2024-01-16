@@ -17,6 +17,7 @@ from collections import Counter
 np.random.seed(42)
 
 
+
 @dataclass
 class DecisionTree:
     criterion: Literal["information_gain", "gini_index"]  # criterion won't be used for regression
@@ -26,6 +27,7 @@ class DecisionTree:
         self.criterion = criterion
         self.max_depth = max_depth
         self.tree=None
+      
     def DIDO(self,X: pd.DataFrame, y: pd.Series,max_depth=8):
         attribute_names=list(X.columns)
         cnt = Counter(x for x in y)
@@ -48,6 +50,7 @@ class DecisionTree:
             tree[best_attr][attr_val]=subtree
           self.tree=tree
           return tree
+        
     def DIRO(self,X: pd.DataFrame, y: pd.Series,max_depth=8):
         attribute_names=list(X.columns)
         cnt = Counter(x for x in y)
@@ -70,30 +73,11 @@ class DecisionTree:
             tree[best_attr][attr_val]=subtree
           self.tree=tree
           return tree
-    def RIDO(self,X: pd.DataFrame, y: pd.Series,max_depth=8):
-        attribute_names=list(X.columns)
-        cnt = Counter(x for x in y)
-        if len(cnt) == 1:
-            return next(iter(cnt))  
-        elif len(X)==0 or (not attribute_names):
-            return None
-        else:               
-          best_attr = opt_split_attribute(X,y,criterion=self.criterion,features=attribute_names)    
-          # X.drop(best_attr, axis=1, inplace=True)
-          tree = {best_attr:{}} # Initiate the tree with best attribute as a node
-          if(len(X)==0):
-            return None
-          for attr_val, data_subset in X.groupby(by=best_attr,as_index=False):
-            data_subset=data_subset.drop(best_attr,axis=1)
-            y_new=y[X[best_attr]==attr_val]
-            subtree=self.DIFO(data_subset,y_new)
-            tree[best_attr][attr_val]=subtree
-          self.tree=tree
-          return tree
+  
     def RIRO(self,X:pd.DataFrame,y:pd.Series):
       attribute_names=list(X.columns)
       cnt = Counter(x for x in y)
-      print(X)
+      # print(X)
       if len(cnt) == 1:
           return y.mean()
           ## Second check: Is this split of the dataset empty? if yes, return a default value
@@ -110,34 +94,36 @@ class DecisionTree:
       X_new=X_new.drop(['index'],axis=1)
       # y_new=X['out']
       # X.drop(['out'],axis=1)
-      print(attribute)
+      # print(attribute)
       tree={attribute:{}}
       
       data_subset_less=pd.DataFrame(X_new[X_new[attribute]<=split_value])
       y_less=pd.Series(data_subset_less['out'])
       df2=data_subset_less.drop(['out'],axis=1)
-      print(df2)
-      df3=df2.drop(attribute,axis=1)
+      # print(df2)
+      # df3=df2.drop(attribute,axis=1)
       # print(df3)
       # return 
       split1="Less than " + str(split_value)
-      subtree_less=self.RIRO(df3,y_less)
+      subtree_less=self.RIRO(df2,y_less)
       
       tree[attribute][split1] =subtree_less 
       
       data_subset_more=X_new[X_new[attribute]>split_value]
       y_more=pd.Series(data_subset_more['out'])
       df4=data_subset_more.drop(['out'],axis=1)
-      df5=df4.drop(attribute,axis=1)
+      # df5=df4.drop(attribute,axis=1)
       split2="Greater than " + str(split_value)
-      subtree_more=self.RIRO(df5,y_more)
+      subtree_more=self.RIRO(df4,y_more)
       tree[attribute][split2]=subtree_more
       
+      self.tree=tree
       return tree
+    
     def RIDO(self,X:pd.DataFrame,y:pd.Series):
       attribute_names=list(X.columns)
       cnt = Counter(x for x in y)
-      print(X)
+      # print(X)
       if len(cnt) == 1:
           return next(iter(cnt))
           ## Second check: Is this split of the dataset empty? if yes, return a default value
@@ -173,7 +159,9 @@ class DecisionTree:
       subtree_more=self.RIDO(df4,y_more)
       tree[attribute][split2]=subtree_more
       
+      self.tree=tree
       return tree
+  
     def fit(self, X: pd.DataFrame, y: pd.Series):
         if(check_ifreal(y)):
             if(check_ifreal(X[0])):
@@ -185,6 +173,53 @@ class DecisionTree:
               return self.RIDO(X,y)
             else:
               return self.DIDO(X,y)
+            
+    def predict_help_RIRO(self,row, tree):
+      if tree is not None and isinstance(tree, dict):
+          if not tree:  
+              return 0  
+
+          key = next(iter(tree))  
+          if isinstance(key, int):
+              # If the key is an integer, it's directly an attribute index
+              attribute = key
+              condition = list(tree[key].keys())[0]  
+          else:
+              # If the key is a string, split it to get attribute and condition
+              attribute, condition = key.split(' ', 1)
+              attribute = int(attribute)
+
+          if 'Less than' in condition:
+              threshold = float(condition.split(' ')[2])
+              if row[attribute] < threshold:
+                  result = tree[key]['Less than ' + str(threshold)]
+              else:
+                  result = tree[key].get('Greater than ' + str(threshold), 0)
+          elif 'Greater than' in condition:
+              threshold = float(condition.split(' ')[2])
+              if row[attribute] > threshold:
+                  result = tree[key]['Greater than ' + str(threshold)]
+              else:
+                  result = tree[key].get('Less than ' + str(threshold), 0)
+          else:
+              raise ValueError("Invalid condition in tree")
+
+          if isinstance(result, dict):
+              return self.predict_help_RIRO(row, result)
+          else:
+              return result
+      else:
+          return 0
+
+    def predict_RIRO(self,X, tree):
+        """
+        Function to run the decision tree on test inputs.
+        """
+        
+        predictions = []
+        for _, row in X.iterrows():
+            predictions.append(self.predict_help_RIRO(row, tree))
+        return pd.Series(predictions)
            
     def predict_help(self,row,tree):
         if(tree!=None):
@@ -197,22 +232,43 @@ class DecisionTree:
                   return result
         else:
            return 0
-
+    
+    def predict_DIDO(self, X: pd.DataFrame) -> pd.Series:
+      """
+      Funtion to run the decision tree on test inputs
+      """
+      list=[]
+      output=""
+      
+      for row in X.iloc:
+          tree=self.tree
+          list.append(self.predict_help(row,tree))
+      return pd.Series(list)
+         
     def predict(self, X: pd.DataFrame) -> pd.Series:
         """
         Funtion to run the decision tree on test inputs
         """
-        list=[]
-        output=""
+        # list=[]
+        # output=""
         
-        for row in X.iloc:
-            tree=self.tree
-            list.append(self.predict_help(row,tree))
-        return pd.Series(list)
+        # for row in X.iloc:
+        #     tree=self.tree
+        #     list.append(self.predict_help(row,tree))
+        # return pd.Series(list)
             
         # Traverse the tree you constructed to return the predicted values for the given test inputs.
-
-        pass
+        
+        # if(check_ifreal(y)):
+        if(check_ifreal(X[0])):
+              return self.predict_RIRO(X,self.tree)
+        else:
+              return self.predict_DIDO(X)
+        # # else:
+        #     if(check_ifreal(X[0])):
+        #       return self.predict_RIDO(X,y)
+        #     else:
+        #       return self.predict_DIDO(X,y)
 
     def plot(self) -> None:
         """

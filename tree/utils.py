@@ -50,20 +50,6 @@ def gini_index(Y: pd.Series) -> float:
     pass
 
 
-def information_gain(Y: pd.Series, attr: pd.Series) -> float:
-    """
-    Function to calculate the information gain
-    """
-    if(check_ifreal(Y)):
-        return mean_square_col(Y)-mse(Y,attr)
-    else:
-        entropy_y=entropy(Y)
-        info_gain=entropy_y
-        total_vals=len(attr)
-        for attribute,val in attr.value_counts().items():
-            info_gain-=val/total_vals*(entropy(Y[attr == attribute]))
-        return info_gain
-    pass
 def information_gain(Y: pd.Series, attr: pd.Series,check_rin=False) -> float:
     """
     Function to calculate the information gain
@@ -101,12 +87,14 @@ def information_gain(Y: pd.Series, attr: pd.Series,check_rin=False) -> float:
         total_vals=len(attr)
         for attribute,val in attr.value_counts().items():
             info_gain-=val/total_vals*(entropy(Y[attr == attribute]))
-        return info_gain
+        return info_gain 
+    pass
 def info_for_real(Y: pd.Series, attr: pd.Series):
     attr = pd.Series(attr, name='Column1')
     Y_new = pd.Series(Y, name='Column2')
     df = pd.DataFrame({'Column1': attr, 'Column2': Y_new})
     df2 = df.sort_values(by='Column1').reset_index(drop=True)
+
     min_mse = 1e6
     min_mse_val = 0
     for i in range(len(df2) - 1):
@@ -132,15 +120,14 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
     """
     if(check_ifreal(y)):
         if(check_rin):
-
             if(criterion=="information_gain"):
                 min_error=1e6
                 chosen_attribute=""
                 chosen_split=1e6
                 for attribute in features:
-                    if(mse(y,X[attribute])[0]<min_error):
-                        min_error=mse(y,X[attribute])[0]
-                        chosen_split=mse(y,X[attribute])[1]
+                    if(info_for_real(y,X[attribute])[0]<min_error):
+                        min_error=info_for_real(y,X[attribute])[0]
+                        chosen_split=info_for_real(y,X[attribute])[1]
                         chosen_attribute=attribute
                 return chosen_attribute,chosen_split
         
@@ -153,8 +140,29 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
                         chosen_attribute=attribute
                         min_gini_ind=gini_index(y)
                 return chosen_attribute
+        else:
+            if(criterion=="information_gain"):
+                
+                # print(features)
+                max_gain=0
+                chosen_attribute=""
+                for attribute in features:
+                    if(information_gain(y,X[attribute])>max_gain):
+                        max_gain=information_gain(y,X[attribute])
+                        chosen_attribute=attribute
+                return chosen_attribute
+
+            else:
+                min_gini_ind=0
+                chosen_attribute=""
+                for attribute in features:
+                    if(gini_index(y)<min_gini_ind):
+                        chosen_attribute=attribute
+                        min_gini_ind=gini_index(y)
+                return chosen_attribute
+ 
     else:
-        if(check_rin==False):
+        if(check_rin):
             if(criterion=="information_gain"):
                 max_gain=0
                 chosen_attribute=""
@@ -180,13 +188,14 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
             if(criterion=="information_gain"):
                 
                 # print(features)
-                max_info_gain=0
+                max_gain=0
                 chosen_attribute=""
                 for attribute in features:
-                    if(info_for_real(y,X[attribute])[1]>max_info_gain):
+                    if(information_gain(y,X[attribute])>max_gain):
+                        max_gain=information_gain(y,X[attribute])
                         chosen_attribute=attribute
-                        max_info_gain=information_gain(y,X[attribute])
                 return chosen_attribute
+
             else:
                 min_gini_ind=0
                 chosen_attribute=""
@@ -195,11 +204,7 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
                         chosen_attribute=attribute
                         min_gini_ind=gini_index(y)
                 return chosen_attribute
-    
-    
-    # According to wheather the features are real or discrete valued and the criterion, find the attribute from the features series with the maximum information gain (entropy or varinace based on the type of output) or minimum gini index (discrete output).
 
-    pass
 
 
 def split_data(X: pd.DataFrame, y: pd.Series, attribute, value):
