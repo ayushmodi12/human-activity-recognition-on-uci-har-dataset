@@ -73,8 +73,6 @@ for i in range(0,140):
     if (hparam_df['val_accuracy'][i] > hparam_df['val_accuracy'][best_hyperparameters_row_id]):
         best_hyperparameters_row_id = i
 
-# best_hyperparameters_row = hparam_df[:][best_hyperparameters_row_id]
-# best_hyperparameters_row = hparam_df.iloc[hparam_df['val_accuracy'].idxmax()]
 best_accuracy = hparam_df['val_accuracy'][best_hyperparameters_row_id]
 best_hyperparameters = {'max_depth':hparam_df['max_depth'][best_hyperparameters_row_id], 'min_samples_split':hparam_df['min_samples_split'][best_hyperparameters_row_id], 'criterion':hparam_df['criterion'][best_hyperparameters_row_id] }
 print("Best Hyperparameters:", best_hyperparameters)
