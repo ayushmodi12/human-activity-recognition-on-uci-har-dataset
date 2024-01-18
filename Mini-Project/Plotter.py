@@ -5,12 +5,16 @@ import os
 
 Subject1_data = {}
 combined_dir = os.path.join(r"D:\mithil\IIT GN\Year_3\Semester 2\Machine Learning\assignment-1-ml-doofenshmirtz-evil-inc\Combined")
-dataset_dir = os.path.join(combined_dir,"Train")
+subject = input("Enter the subject: (eg: Subject_26 or Subject_02): ")
+if (int(subject[-2:]) in [2,4,9,10,12,13,18,20,24]):
+    dataset_dir = os.path.join(combined_dir,"Test")
+else:
+    dataset_dir = os.path.join(combined_dir,"Train")
 folders = ["LAYING","SITTING","STANDING","WALKING","WALKING_DOWNSTAIRS","WALKING_UPSTAIRS"]
 classes = {"WALKING":1,"WALKING_UPSTAIRS":2,"WALKING_DOWNSTAIRS":3,"SITTING":4,"STANDING":5,"LAYING":6}
 
 for folder in folders:
-    file = "Subject_26.csv"
+    file = "Subject_"+str(int(subject[-2:]))+".csv"
     df = pd.read_csv(os.path.join(dataset_dir,folder,file),sep=",",header=0)
     df = df[100:600]
     Subject1_data[folder] = df.values
