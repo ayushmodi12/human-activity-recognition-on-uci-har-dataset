@@ -16,8 +16,6 @@ from tree.utils import *
 from collections import Counter
 np.random.seed(42)
 
-
-
 @dataclass
 class DecisionTree:
     criterion: Literal["information_gain", "gini_index"]  # criterion won't be used for regression
@@ -28,7 +26,8 @@ class DecisionTree:
         self.max_depth = max_depth
         self.tree=None
       
-    def DIDO(self,X: pd.DataFrame, y: pd.Series,max_depth=8):
+    def DIDO(self,X: pd.DataFrame, y: pd.Series,depth=3):
+        
         attribute_names=list(X.columns)
         cnt = Counter(x for x in y)
         if len(cnt) == 1:
@@ -36,6 +35,9 @@ class DecisionTree:
         ## Second check: Is this split of the dataset empty? if yes, return a default value
         elif len(X)==0 or (not attribute_names):
             return None
+        elif(depth==0):
+            # print(cnt.most_common(1)[0],"Hello")
+            return cnt.most_common(1)[0][0]
 
         else:               
           best_attr = opt_split_attribute(X,y,criterion=self.criterion,features=attribute_names)    
@@ -45,20 +47,23 @@ class DecisionTree:
             return None
           for attr_val, data_subset in X.groupby(by=best_attr,as_index=False):
             data_subset=data_subset.drop(best_attr,axis=1)
+            # print(attr_val,data_subset)
             y_new=y[X[best_attr]==attr_val]
-            subtree=self.DIDO(data_subset,y_new)
+            subtree=self.DIDO(data_subset,y_new,depth-1)
             tree[best_attr][attr_val]=subtree
           self.tree=tree
           return tree
         
-    def DIRO(self,X: pd.DataFrame, y: pd.Series,max_depth=8):
+    def DIRO(self,X: pd.DataFrame, y: pd.Series,depth):
         attribute_names=list(X.columns)
         cnt = Counter(x for x in y)
         if len(cnt) == 1:
-            return next(iter(cnt))  # next input data set, or raises StopIteration when EOF is hit.
+            return y.mean()  # next input data set, or raises StopIteration when EOF is hit.
         ## Second check: Is this split of the dataset empty? if yes, return a default value
         elif len(X)==0 or (not attribute_names):
-            return y.mean()
+            return None
+        elif depth==0:
+          return y.mean()
 
         else:               
           best_attr = opt_split_attribute(X,y,criterion=self.criterion,features=attribute_names)    
@@ -69,12 +74,12 @@ class DecisionTree:
           for attr_val, data_subset in X.groupby(by=best_attr,as_index=False):
             data_subset=data_subset.drop(best_attr,axis=1)
             y_new=y[X[best_attr]==attr_val]
-            subtree=self.DIRO(data_subset,y_new)
+            subtree=self.DIRO(data_subset,y_new,depth-1)
             tree[best_attr][attr_val]=subtree
           self.tree=tree
           return tree
   
-    def RIRO(self,X:pd.DataFrame,y:pd.Series):
+    def RIRO(self,X:pd.DataFrame,y:pd.Series,depth):
       attribute_names=list(X.columns)
       cnt = Counter(x for x in y)
       # print(X)
@@ -83,7 +88,9 @@ class DecisionTree:
           ## Second check: Is this split of the dataset empty? if yes, return a default value
       elif len(X)==0 or (not attribute_names):
               return {}
-      attribute,split_value=opt_split_attribute(X,y,criterion="information_gain",features=pd.Series(list(X.columns)),check_rin=True)
+      elif depth==0:
+          return y.mean()
+      attribute,split_value=opt_split_attribute(X,y,criterion=self.criterion,features=pd.Series(list(X.columns)),check_rin=True)
 
       #X['out']=y.copy()
       # print(X)
@@ -105,7 +112,7 @@ class DecisionTree:
       # print(df3)
       # return 
       split1="Less than " + str(split_value)
-      subtree_less=self.RIRO(df2,y_less)
+      subtree_less=self.RIRO(df2,y_less,depth-1)
       
       tree[attribute][split1] =subtree_less 
       
@@ -114,13 +121,13 @@ class DecisionTree:
       df4=data_subset_more.drop(['out'],axis=1)
       # df5=df4.drop(attribute,axis=1)
       split2="Greater than " + str(split_value)
-      subtree_more=self.RIRO(df4,y_more)
+      subtree_more=self.RIRO(df4,y_more,depth-1)
       tree[attribute][split2]=subtree_more
       
       self.tree=tree
       return tree
     
-    def RIDO(self,X:pd.DataFrame,y:pd.Series):
+    def RIDO(self,X:pd.DataFrame,y:pd.Series,depth=2):
       attribute_names=list(X.columns)
       cnt = Counter(x for x in y)
       # print(X)
@@ -129,8 +136,11 @@ class DecisionTree:
           ## Second check: Is this split of the dataset empty? if yes, return a default value
       elif len(X)==0 or (not attribute_names):
               return None
+      elif(depth==0):
+            # print(cnt.most_common(1)[0],"Hello")
+            return cnt.most_common(1)[0][0]
       
-      attribute,split_value=opt_split_attribute(X,y,criterion="information_gain",features=pd.Series(list(X.columns)),check_rin=True)
+      attribute,split_value=opt_split_attribute(X,y,criterion=self.criterion,features=pd.Series(list(X.columns)),check_rin=True)
       
       X_new=X
       X_new.loc[:, 'out'] = y.copy()
@@ -147,7 +157,7 @@ class DecisionTree:
       # print(df3)
       # return 
       split1="Less than " + str(split_value)
-      subtree_less=self.RIDO(df2,y_less)
+      subtree_less=self.RIDO(df2,y_less,depth-1)
       
       tree[attribute][split1] =subtree_less 
       
@@ -156,7 +166,7 @@ class DecisionTree:
       df4=data_subset_more.drop(['out'],axis=1)
       # df5=df4.drop(attribute,axis=1)
       split2="Greater than " + str(split_value)
-      subtree_more=self.RIDO(df4,y_more)
+      subtree_more=self.RIDO(df4,y_more,depth-1)
       tree[attribute][split2]=subtree_more
       
       self.tree=tree
@@ -165,14 +175,14 @@ class DecisionTree:
     def fit(self, X: pd.DataFrame, y: pd.Series):
         if(check_ifreal(y)):
             if(check_ifreal(X[0])):
-              return self.RIRO(X,y)
+              return self.RIRO(X,y,self.max_depth)
             else:
-              return self.DIRO(X,y)
+              return self.DIRO(X,y,self.max_depth)
         else:
             if(check_ifreal(X[0])):
-              return self.RIDO(X,y)
+              return self.RIDO(X,y,self.max_depth)
             else:
-              return self.DIDO(X,y)
+              return self.DIDO(X,y,self.max_depth)
             
     def predict_help_RIRO(self,row, tree):
       if tree is not None and isinstance(tree, dict):
