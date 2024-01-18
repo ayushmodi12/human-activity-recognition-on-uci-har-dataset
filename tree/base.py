@@ -21,7 +21,7 @@ class DecisionTree:
     criterion: Literal["information_gain", "gini_index"]  # criterion won't be used for regression
     max_depth: int  # The maximum depth the tree can grow to
 
-    def __init__(self, criterion, max_depth=5):
+    def __init__(self, criterion, max_depth=8):
         self.criterion = criterion
         self.max_depth = max_depth
         self.tree=None
@@ -29,11 +29,12 @@ class DecisionTree:
     def DIDO(self,X: pd.DataFrame, y: pd.Series,depth=3):
         
         attribute_names=list(X.columns)
+        # print(attribute_names)
         cnt = Counter(x for x in y)
         if len(cnt) == 1:
             return next(iter(cnt))  # next input data set, or raises StopIteration when EOF is hit.
         ## Second check: Is this split of the dataset empty? if yes, return a default value
-        elif len(X)==0 or (not attribute_names):
+        elif len(X)==0 or (len(attribute_names)==0):
             return None
         elif(depth==0):
             # print(cnt.most_common(1)[0],"Hello")
@@ -45,6 +46,13 @@ class DecisionTree:
           tree = {best_attr:{}} # Initiate the tree with best attribute as a node
           if(len(X)==0):
             return None
+        #   unique_vals=list(X[best_attr].unique())
+        #   for val in unique_vals:
+        #       data_subset,y_new=split_data(X,y,best_attr,val)
+        #       subtree=self.DIDO(data_subset,y_new,depth-1)
+        #       tree[best_attr][val]=subtree
+        #   self.tree=tree
+        #   return tree
           for attr_val, data_subset in X.groupby(by=best_attr,as_index=False):
             data_subset=data_subset.drop(best_attr,axis=1)
             # print(attr_val,data_subset)

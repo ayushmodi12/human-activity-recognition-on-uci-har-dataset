@@ -158,7 +158,7 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
         if(check_rin):
             if(criterion=="information_gain"):
                 min_error=1e6
-                chosen_attribute=""
+                chosen_attribute=features[0]
                 chosen_split=1e6
                 for attribute in features:
                     if(info_for_real(y,X[attribute])[0]<min_error):
@@ -170,7 +170,7 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
         
             else:
                 min_error=1e6
-                chosen_attribute=""
+                chosen_attribute=features[0]
                 chosen_split=1e6
                 for attribute in features:
                     if(info_for_real(y,X[attribute])[0]<min_error):
@@ -184,7 +184,7 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
                 
                 # print(features)
                 max_gain=0
-                chosen_attribute=""
+                chosen_attribute=features[0]
                 for attribute in features:
                     if(information_gain(y,X[attribute])>max_gain):
                         max_gain=information_gain(y,X[attribute])
@@ -193,7 +193,7 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
 
             else:
                 max_gain=0
-                chosen_attribute=""
+                chosen_attribute=features[0]
                 for attribute in features:
                     if(information_gain(y,X[attribute])>max_gain):
                         max_gain=information_gain(y,X[attribute])
@@ -205,7 +205,7 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
         if(check_rin):
             if(criterion=="information_gain"):
                 max_gain=0
-                chosen_attribute=""
+                chosen_attribute=features[0]
                 chosen_split=1e6
                 for attribute in features:
                     if(information_gain(y,X[attribute],check_rin=True)[0]>max_gain):
@@ -217,7 +217,7 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
         
             else:
                 max_gain=0
-                chosen_attribute=""
+                chosen_attribute=features[0]
                 chosen_split=1e6
                 for attribute in features:
                     if(gini_gain(y,X[attribute],check_rin=True)[0]>max_gain):
@@ -232,7 +232,7 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
                 
                 # print(features)
                 max_gain=0
-                chosen_attribute=""
+                chosen_attribute=features[0]
                 for attribute in features:
                     if(information_gain(y,X[attribute])>max_gain):
                         max_gain=information_gain(y,X[attribute])
@@ -241,7 +241,7 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
 
             else:
                 max_gain=0
-                chosen_attribute=""
+                chosen_attribute=features[0]
                 for attribute in features:
                     if(gini_gain(y,X[attribute])>max_gain):
                         max_gain=gini_gain(y,X[attribute])
@@ -263,5 +263,6 @@ def split_data(X: pd.DataFrame, y: pd.Series, attribute, value):
 
     # Split the data based on a particular value of a particular attribute. You may use masking as a tool to split the data.
     X_match, y_match = X[X[attribute] == value], y[X[attribute] == value]
+    X_match.drop([attribute], axis=1)
     return (X_match,y_match)
     pass
