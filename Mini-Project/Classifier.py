@@ -64,13 +64,16 @@ plt.show()
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 acc_vals = []
+acc_vals_ontrain = []
 con_mats = []
 depths = [i for i in range(2,9)]
 for depth in depths:
     Recognizer = tree.DecisionTreeClassifier(max_depth=depth)
     Recognizer = Recognizer.fit(X_train_total_acceleration, y_train)
     y_pred = Recognizer.predict(X_test_total_acceleration)
+    y_pred_ontrain = Recognizer.predict(X_train_total_acceleration)
     acc_vals.append(accuracy_score(y_test,y_pred))
+    acc_vals_ontrain.append(accuracy_score(y_train,y_pred_ontrain))
     con_mats.append(confusion_matrix(y_test,y_pred, labels=Recognizer.classes_))
 
 ### Plotting the data
@@ -87,11 +90,12 @@ for i in range(num_plots):
     axs[i//4, i%4].set_ylabel('True')
 
 # Plot accuracy values
-axs[1, 3].plot(depths, acc_vals, color='green')
+axs[1, 3].plot(depths, acc_vals, color='orange')
+axs[1, 3].plot(depths, acc_vals_ontrain, color='blue')
 axs[1, 3].set_title('Accuracy vs. Depth')
 axs[1, 3].set_xlabel('Depth -->')
 axs[1, 3].set_ylabel('Accuracy -->')
-
+axs[1, 3].legend()
 # Adjust layout
 plt.tight_layout()
 
