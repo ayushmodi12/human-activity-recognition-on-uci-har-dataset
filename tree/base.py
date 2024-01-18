@@ -26,7 +26,7 @@ class DecisionTree:
         self.max_depth = max_depth
         self.tree=None
       
-    def DIDO(self,X: pd.DataFrame, y: pd.Series,depth=3):
+    def DIDO(self,X: pd.DataFrame, y: pd.Series,depth):
         
         attribute_names=list(X.columns)
         # print(attribute_names)
@@ -135,7 +135,7 @@ class DecisionTree:
       self.tree=tree
       return tree
     
-    def RIDO(self,X:pd.DataFrame,y:pd.Series,depth=2):
+    def RIDO(self,X:pd.DataFrame,y:pd.Series,depth):
       attribute_names=list(X.columns)
       cnt = Counter(x for x in y)
       # print(X)
