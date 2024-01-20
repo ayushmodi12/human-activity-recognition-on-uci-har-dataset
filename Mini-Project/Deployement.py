@@ -23,7 +23,7 @@ for folder in classes.keys():
         
         df = df[0:500]
         df.columns = ['time','ax','ay','az','at']
-        X_test_collected.append(np.array(df['at']))
+        X_test_collected.append(np.array(df['at'])**2)
         y_test_collected.append(classes[folder])
 
 X_test_collected = np.array(X_test_collected)
