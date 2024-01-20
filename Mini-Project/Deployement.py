@@ -6,14 +6,26 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, ConfusionMatrixDisplay, confusion_matrix
 
-classes = {"WALKING":1,"WALKING_UPSTAIRS":2,"WALKING_DOWNSTAIRS":3,"SITTING":4,"STANDING":5,"LAYING":6}
-collected_data_dir = r"Collected-Data"
-folder = "WalkingDownstairs"
-file = "Subject_1.csv"
-X_test = []
+classes = {"Walking":1,"WalkingUpstairs":2,"WalkingDownstairs":3,"Sitting":4,"Standing":5,"Laying":6}
 
-df = pd.read_excel(r"D:\mithil\IIT GN\Year_3\Semester 2\Machine Learning\assignment-1-ml-doofenshmirtz-evil-inc\Collected-Data\WalkingDownstairs\Subject_1.xlsx")
-X_test_collected = np.array(df['at'])
+X_test_collected = []
+y_test_collected = []
+for folder in classes.keys():
+    files = os.listdir("..\\Collected-Data\\"+folder)
+    for file in files:
+        path = "..\\Collected-Data\\" + folder + "\\" + file 
+        df = pd.read_excel(path)
+        df.columns = ['time','ax','ay','az','at']
+        X_test_collected+= np.array(df['at'])
+        y_test_collected.append(classes[folder])
+
+
+# folder = "WalkingDownstairs"
+# file = "Subject_1.xlsx"
+
+# path = "..\\Collected-Data\\" + folder + "\\" + file 
+# df = pd.read_excel(path)
+# X_test_collected = np.array(df['at'])
 
 
 X_train = np.load('X_train.npy')
@@ -51,5 +63,11 @@ Recognizer = tree.DecisionTreeClassifier(max_depth=7, min_samples_split=5, crite
 Recognizer.fit(X_train, y_train)
 X_test_collected = X_test_collected.reshape((1,500))
 y_pred = Recognizer.predict(X_test_collected)
-print(y_pred)
+accuracy = accuracy_score(y_test_collected,y_pred)
+print("Accuracy of the Decision Tree model is (max_depth == None): ",accuracy)
+con_mat = confusion_matrix(y_test_collected,y_pred, labels=Recognizer.classes_)
+print("Displaying Confusion Matrix...")
+disp = ConfusionMatrixDisplay(confusion_matrix=con_mat,display_labels=Recognizer.classes_)
+disp.plot()
+plt.show()
             
