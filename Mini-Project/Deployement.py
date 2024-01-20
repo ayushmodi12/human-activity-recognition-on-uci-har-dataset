@@ -13,20 +13,20 @@ y_test_collected = []
 for folder in classes.keys():
     files = os.listdir("..\\Collected-Data\\"+folder)
     for file in files:
-        path = "..\\Collected-Data\\" + folder + "\\" + file 
-        df = pd.read_excel(path)
+        path = "..\\Collected-Data\\" + folder + "\\" + file
+        print(path)
+        try: 
+            df = pd.read_excel(path)
+        except:
+            df = pd.read_csv(path)
+        
+        df = df[0:500]
         df.columns = ['time','ax','ay','az','at']
-        X_test_collected+= np.array(df['at'])
+        X_test_collected.append(np.array(df['at']))
         y_test_collected.append(classes[folder])
 
-
-# folder = "WalkingDownstairs"
-# file = "Subject_1.xlsx"
-
-# path = "..\\Collected-Data\\" + folder + "\\" + file 
-# df = pd.read_excel(path)
-# X_test_collected = np.array(df['at'])
-
+X_test_collected = np.array(X_test_collected)
+print(X_test_collected.shape)
 
 X_train = np.load('X_train.npy')
 y_train = np.load('y_train.npy')
@@ -61,7 +61,7 @@ X_train, X_val, y_train, y_val = train_test_split(X_data, y_data, test_size=0.3,
 
 Recognizer = tree.DecisionTreeClassifier(max_depth=7, min_samples_split=5, criterion='gini', random_state=42)
 Recognizer.fit(X_train, y_train)
-X_test_collected = X_test_collected.reshape((1,500))
+
 y_pred = Recognizer.predict(X_test_collected)
 accuracy = accuracy_score(y_test_collected,y_pred)
 print("Accuracy of the Decision Tree model is (max_depth == None): ",accuracy)
