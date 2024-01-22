@@ -126,26 +126,21 @@ def information_gain(Y: pd.Series, attr: pd.Series,check_rin=False) -> float:
             info_gain-=val/total_vals*(entropy(Y[attr == attribute]))
         return info_gain 
 def info_for_real(Y: pd.Series, attr: pd.Series):
-    attr = pd.Series(attr, name='Column1')
-    Y_new = pd.Series(Y, name='Column2')
-    df = pd.DataFrame({'Column1': attr, 'Column2': Y_new})
-    df2 = df.sort_values(by='Column1').reset_index(drop=True)
+    split_point = -np.inf
+    max_gain = -np.inf
+    df_samples = pd.DataFrame({'Attribute':attr,'Y':Y})
+    df_sorted = df_samples.sort_values('Attribute')
+    sorted_attributes = attr.sort_values()
+    lower_ind = sorted_attributes.index[0]
 
-    min_mse = 1e6
-    min_mse_val = 0
-    for i in range(len(df2) - 1):
-        ind1 = i
-        ind2 = i + 1
-        avg_val = (df2['Column1'].iloc[ind1] + df2['Column1'].iloc[ind2]) / 2
-        Y1 = Y[:ind2]
-        Y2 = Y[ind2:]
-        mse1 = mean_square_col(Y1)
-        mse2 = mean_square_col(Y2)
-        net_mse = (len(Y1) / (len(Y1) + len(Y2))) * mse1 + (len(Y2) / (len(Y1) + len(Y2))) * mse2
-        if net_mse < min_mse:
-            min_mse = net_mse
-            min_mse_val = avg_val
-    return min_mse, min_mse_val
+    for upper_ind in sorted_attributes.index[1:]:
+        middle_val = (sorted_attributes[lower_ind] + sorted_attributes[upper_ind])/2
+        split_gain = mean_square_col(Y) - mean_square_col(df_sorted.loc[attr<=middle_val]['Y']) * (len(df_sorted.loc[attr<=middle_val]['Y'])/len(Y)) - mean_square_col(df_sorted.loc[attr>middle_val]['Y']) * (len(df_sorted.loc[attr>middle_val]['Y'])/len(Y))
+        lower_ind=upper_ind
+        if split_gain>max_gain:
+            split_point=middle_val
+            max_gain=split_gain
+    return max_gain,split_point
 def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.Series,check_rin=False):
     """
     Function to find the optimal attribute to split about.
