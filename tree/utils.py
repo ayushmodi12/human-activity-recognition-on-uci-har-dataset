@@ -25,13 +25,13 @@ def mean_square_col(Y:pd.Series):
     mean=Y.mean()
     return (Y.apply(lambda x:(x-mean)**2).sum())/len(Y)
 
-def mse(Y:pd.Series,attr:pd.Series) -> float:
-    result=0
-    total_val=len(attr)
-    for attribute,val in attr.value_counts().items():
-        result+=(val/total_val)*(mean_square_col(Y[attr==attribute]))
+# def mse(Y:pd.Series,attr:pd.Series) -> float:
+#     result=0
+#     total_val=len(attr)
+#     for attribute,val in attr.value_counts().items():
+#         result+=(val/total_val)*(mean_square_col(Y[attr==attribute]))
         
-    return result
+#     return result
 
 def entropy(Y: pd.Series) -> float:
     """
@@ -132,7 +132,6 @@ def info_for_real(Y: pd.Series, attr: pd.Series):
     df_sorted = df_samples.sort_values('Attribute')
     sorted_attributes = attr.sort_values()
     lower_ind = sorted_attributes.index[0]
-
     for upper_ind in sorted_attributes.index[1:]:
         middle_val = (sorted_attributes[lower_ind] + sorted_attributes[upper_ind])/2
         split_gain = mean_square_col(Y) - mean_square_col(df_sorted.loc[attr<=middle_val]['Y']) * (len(df_sorted.loc[attr<=middle_val]['Y'])/len(Y)) - mean_square_col(df_sorted.loc[attr>middle_val]['Y']) * (len(df_sorted.loc[attr>middle_val]['Y'])/len(Y))
@@ -152,24 +151,23 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
     if(check_ifreal(y)):
         if(check_rin):
             if(criterion=="information_gain"):
-                min_error=1e6
+                max_gain=-1
                 chosen_attribute=features[0]
                 chosen_split=1e6
                 for attribute in features:
-                    if(info_for_real(y,X[attribute])[0]<min_error):
-                        min_error=info_for_real(y,X[attribute])[0]
+                    if(info_for_real(y,X[attribute])[0]>max_gain):
+                        max_gain=info_for_real(y,X[attribute])[0]
                         chosen_split=info_for_real(y,X[attribute])[1]
                         chosen_attribute=attribute
                 return chosen_attribute,chosen_split
         
-        
             else:
-                min_error=1e6
+                max_gain=-1
                 chosen_attribute=features[0]
                 chosen_split=1e6
                 for attribute in features:
-                    if(info_for_real(y,X[attribute])[0]<min_error):
-                        min_error=info_for_real(y,X[attribute])[0]
+                    if(info_for_real(y,X[attribute])[0]>max_gain):
+                        max_gain=info_for_real(y,X[attribute])[0]
                         chosen_split=info_for_real(y,X[attribute])[1]
                         chosen_attribute=attribute
                 return chosen_attribute,chosen_split
