@@ -267,26 +267,11 @@ class DecisionTree:
         """
         Funtion to run the decision tree on test inputs
         """
-        # list=[]
-        # output=""
-        
-        # for row in X.iloc:
-        #     tree=self.tree
-        #     list.append(self.predict_help(row,tree))
-        # return pd.Series(list)
-            
-        # Traverse the tree you constructed to return the predicted values for the given test inputs.
-        
-        # if(check_ifreal(y)):
+       
         if(check_ifreal(X[0])):
               return self.predict_RIRO(X,self.tree)
         else:
               return self.predict_DIDO(X)
-        # # else:
-        #     if(check_ifreal(X[0])):
-        #       return self.predict_RIDO(X,y)
-        #     else:
-        #       return self.predict_DIDO(X,y)
 
     def plot(self) -> None:
         """
@@ -300,4 +285,5 @@ class DecisionTree:
             N: Class C
         Where Y => Yes and N => No
         """
+        
         pass
