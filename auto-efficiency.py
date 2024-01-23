@@ -23,12 +23,32 @@ df = df.drop(['cylinders'], axis=1)
 # df = df.drop(['origin'], axis=1)
 df.columns = range(len(df.columns))
 y = y.astype('float64')
-tree = DecisionTree(criterion="information_gain",max_depth=6)  # Split based on Inf. Gain
+tree = DecisionTree(criterion="information_gain",max_depth=5)  # Split based on Inf. Gain
 tree.fit(df,y)
 
-print(tree.tree)
+# print(tree.tree)
 y_hat = tree.predict(df)
+print("Results of our tree: ")
 # tree.plot()
 print("RMSE: ", rmse(y_hat, y))
 print("MAE: ", mae(y_hat, y))
-print(y_hat,y)
+# print(y_hat,y)
+
+print("Results of sklearn decision tree: ")
+
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import mean_squared_error
+from math import sqrt
+
+regressor = DecisionTreeRegressor(max_depth=5)
+regressor.fit(df,y)
+Y_pred = regressor.predict(df)
+
+# Calculate MSE and RMSE
+mse = mean_squared_error(y, Y_pred)
+rmse = sqrt(mse)
+
+# print(f"Mean Squared Error: {mse}")
+print(f"RMSE: {rmse}")
+print("MAE: ", mae(Y_pred, y))
+print(regressor.get_depth())

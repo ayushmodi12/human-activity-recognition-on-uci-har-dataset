@@ -10,18 +10,15 @@ def check_ifreal(y: pd.Series) -> bool:
     """
     Function to check if the given series has real or discrete values
     """
-    # print(y.dtype)
     if(y.dtype=='float64'):
         return True
     else:
         return False
-
     pass
 
 def mean_square_col(Y:pd.Series):
     if(len(Y)==0):
         return 0
-    ans=0
     mean=Y.mean()
     return (Y.apply(lambda x:(x-mean)**2).sum())/len(Y)
 
@@ -38,8 +35,7 @@ def entropy(Y: pd.Series) -> float:
     Function to calculate the entropy
     """
     return Y.value_counts(normalize=True).apply(lambda x: -x*np.log2(x+1e-6)).sum()
-    
-    pass
+
 
 
 def gini_index(Y: pd.Series) -> float:
@@ -47,99 +43,83 @@ def gini_index(Y: pd.Series) -> float:
     Function to calculate the gini index
     """
     return 1-Y.value_counts(normalize=True).apply(lambda x: x**2).sum()
-    pass
 
-def gini_gain(Y: pd.Series, attr: pd.Series,check_rin=False) -> float:
-    """
-    Function to calculate the information gain
-    """        
-    # print(mean_square_col(Y)-mse(Y,attr))
-    # if(check_ifreal(Y)):
-        
-    #     return mean_square_col(Y)-mse(Y,attr)
-    if(check_rin):
-        attr = pd.Series(attr, name='Column1')
-        Y_new = pd.Series(Y, name='Column2')
-        df = pd.DataFrame({'Column1': attr, 'Column2': Y_new})
-        df2 = df.sort_values(by='Column1').reset_index(drop=True)
-        entropy_y=gini_index(Y)
-
-        max_info =0
-        chosen_split = 1e6
-        for i in range(len(df2) - 1):
-            ind1 = i
-            ind2 = i + 1
-            avg_val = (df2['Column1'].iloc[ind1] + df2['Column1'].iloc[ind2]) / 2
-            Y1 = Y[:ind2]
-            Y2 = Y[ind2:]
-            en1 = gini_index(Y1)
-            en2 = gini_index(Y2)
-            net_en = entropy_y - ((len(Y1) / (len(Y1) + len(Y2))) * en1) - ((len(Y2) / (len(Y1) + len(Y2))) * en2)
-            if net_en > max_info:
-                max_info = net_en
-                chosen_split = avg_val
-        return max_info, chosen_split
-    else:
+def gini_gain(Y: pd.Series, attr: pd.Series) -> float:
         entropy_y=gini_index(Y)
         info_gain=entropy_y
         total_vals=len(attr)
         for attribute,val in attr.value_counts().items():
             info_gain-=val/total_vals*(gini_index(Y[attr == attribute]))
-        return info_gain
+        return info_gain 
 
-def information_gain(Y: pd.Series, attr: pd.Series,check_rin=False) -> float:
-    """
-    Function to calculate the information gain
-    """        
-    # print(mean_square_col(Y)-mse(Y,attr))
-    # if(check_ifreal(Y)):
-        
-    #     return mean_square_col(Y)-mse(Y,attr)
-    if(check_rin):
-        attr = pd.Series(attr, name='Column1')
-        Y_new = pd.Series(Y, name='Column2')
-        df = pd.DataFrame({'Column1': attr, 'Column2': Y_new})
-        df2 = df.sort_values(by='Column1').reset_index(drop=True)
-        entropy_y=entropy(Y)
-
-        max_info =0
-        chosen_split = 1e6
-        for i in range(len(df2) - 1):
-            ind1 = i
-            ind2 = i + 1
-            avg_val = (df2['Column1'].iloc[ind1] + df2['Column1'].iloc[ind2]) / 2
-            Y1 = Y[:ind2]
-            Y2 = Y[ind2:]
-            en1 = entropy(Y1)
-            en2 = entropy(Y2)
-            net_en = entropy_y - ((len(Y1) / (len(Y1) + len(Y2))) * en1) - ((len(Y2) / (len(Y1) + len(Y2))) * en2)
-            if net_en > max_info:
-                max_info = net_en
-                chosen_split = avg_val
-        return max_info, chosen_split
-    
-    else:
+def info_dido(Y: pd.Series, attr: pd.Series):
         entropy_y=entropy(Y)
         info_gain=entropy_y
         total_vals=len(attr)
         for attribute,val in attr.value_counts().items():
             info_gain-=val/total_vals*(entropy(Y[attr == attribute]))
         return info_gain 
-def info_for_real(Y: pd.Series, attr: pd.Series):
-    split_point = -np.inf
-    max_gain = -np.inf
+    
+def info_diro(Y: pd.Series, attr: pd.Series):
+        sample_mse=mean_square_col(Y)
+        df_samples = pd.DataFrame({'Attribute':attr,'Y':Y})
+        total_mse=0
+        for value in attr.unique():
+            total_mse += mean_square_col(df_samples[attr==value]['Y'])*(len(df_samples[attr==value]['Y'])/len(Y))
+        info_gain = sample_mse -total_mse
+        return info_gain
+    
+def info_riro(Y: pd.Series, attr: pd.Series):
+    split_val = -1e6
+    max_gain = -1e6
     df_samples = pd.DataFrame({'Attribute':attr,'Y':Y})
-    df_sorted = df_samples.sort_values('Attribute')
-    sorted_attributes = attr.sort_values()
-    lower_ind = sorted_attributes.index[0]
-    for upper_ind in sorted_attributes.index[1:]:
-        middle_val = (sorted_attributes[lower_ind] + sorted_attributes[upper_ind])/2
-        split_gain = mean_square_col(Y) - mean_square_col(df_sorted.loc[attr<=middle_val]['Y']) * (len(df_sorted.loc[attr<=middle_val]['Y'])/len(Y)) - mean_square_col(df_sorted.loc[attr>middle_val]['Y']) * (len(df_sorted.loc[attr>middle_val]['Y'])/len(Y))
+    df_samples = df_samples.sort_values('Attribute')
+    attributes = attr.sort_values()
+    lower_ind = attributes.index[0]
+
+    for upper_ind in attributes.index[1:]:
+        avg = (attributes[lower_ind] + attributes[upper_ind])/2
+        gain = mean_square_col(Y) - mean_square_col(df_samples.loc[attr<=avg]['Y']) * (len(df_samples.loc[attr<=avg]['Y'])/len(Y)) - mean_square_col(df_samples.loc[attr>avg]['Y']) * (len(df_samples.loc[attr>avg]['Y'])/len(Y))
         lower_ind=upper_ind
-        if split_gain>max_gain:
-            split_point=middle_val
-            max_gain=split_gain
-    return max_gain,split_point
+        if gain>max_gain:
+            split_val=avg
+            max_gain=gain
+    return max_gain,split_val
+
+def info_rido(Y: pd.Series, attr: pd.Series):
+        split_val = -1e6
+        max_gain = -1e6
+        df_samples = pd.DataFrame({'Attribute':attr,'Y':Y})
+        df_samples = df_samples.sort_values('Attribute')
+        attributes = attr.sort_values()
+        lower_ind = attributes.index[0]
+        for upper_ind in attributes.index[1:]:
+            avg = (attributes[lower_ind] + attributes[upper_ind])/2
+            gain = entropy(Y) - entropy(df_samples.loc[attr<=avg]['Y']) * (len(df_samples.loc[attr<=avg]['Y'])/len(Y)) - entropy(df_samples.loc[attr>avg]['Y']) * (len(df_samples.loc[attr>avg]['Y'])/len(Y))
+            if gain>max_gain:
+                split_val=avg
+                max_gain=gain
+            lower_ind=upper_ind
+        # print(max_gain)
+        return max_gain,split_val
+
+def gini_rido(Y: pd.Series, attr: pd.Series):
+        split_val = -1e6
+        max_gain = -1e6
+        df_samples = pd.DataFrame({'Attribute':attr,'Y':Y})
+        df_samples = df_samples.sort_values('Attribute')  
+        attributes = attr.sort_values()
+        lower_ind = attributes.index[0]
+        for upper_ind in attributes.index[1:]:
+            avg = (attributes[lower_ind] + attributes[upper_ind])/2
+            # print(attr)
+            gain = gini_index(Y) - gini_index(df_samples.loc[attr<=avg]['Y']) * (len(df_samples.loc[attr<=avg]['Y'])/len(Y)) - gini_index(df_samples.loc[attr>avg]['Y']) * (len(df_samples.loc[attr>avg]['Y'])/len(Y))
+            if gain>max_gain:
+                split_val=avg
+                max_gain=gain
+            lower_ind=upper_ind
+        return max_gain,split_val
+
 def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.Series,check_rin=False):
     """
     Function to find the optimal attribute to split about.
@@ -150,97 +130,99 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
     """
     if(check_ifreal(y)):
         if(check_rin):
+            #RIRO
             if(criterion=="information_gain"):
-                max_gain=-1
-                chosen_attribute=features[0]
+                min_error=-1e6
+                chosen_attribute=""
                 chosen_split=1e6
                 for attribute in features:
-                    if(info_for_real(y,X[attribute])[0]>max_gain):
-                        max_gain=info_for_real(y,X[attribute])[0]
-                        chosen_split=info_for_real(y,X[attribute])[1]
+                    if(info_riro(y,X[attribute])[0]>min_error):
+                        min_error=info_riro(y,X[attribute])[0]
+                        chosen_split=info_riro(y,X[attribute])[1]
                         chosen_attribute=attribute
                 return chosen_attribute,chosen_split
         
+        
             else:
-                max_gain=-1
-                chosen_attribute=features[0]
+                min_error=1e6
+                chosen_attribute=""
                 chosen_split=1e6
                 for attribute in features:
-                    if(info_for_real(y,X[attribute])[0]>max_gain):
-                        max_gain=info_for_real(y,X[attribute])[0]
-                        chosen_split=info_for_real(y,X[attribute])[1]
+
+                    if(info_riro(y,X[attribute])[0]<min_error):
+                        min_error=info_riro(y,X[attribute])[0]
+                        chosen_split=info_riro(y,X[attribute])[1]
                         chosen_attribute=attribute
                 return chosen_attribute,chosen_split
 
         else:
+            #DIRO
             if(criterion=="information_gain"):
                 
-                # print(features)
                 max_gain=0
-                chosen_attribute=features[0]
+                chosen_attribute=""
                 for attribute in features:
-                    if(information_gain(y,X[attribute])>max_gain):
-                        max_gain=information_gain(y,X[attribute])
+                    if(info_diro(y,X[attribute])>max_gain):
+                        max_gain=info_diro(y,X[attribute])
                         chosen_attribute=attribute
                 return chosen_attribute
 
             else:
                 max_gain=0
-                chosen_attribute=features[0]
+                chosen_attribute=""
                 for attribute in features:
-                    if(information_gain(y,X[attribute])>max_gain):
-                        max_gain=information_gain(y,X[attribute])
+                    if(info_diro(y,X[attribute])>max_gain):
+                        max_gain=info_diro(y,X[attribute])
                         chosen_attribute=attribute
                 return chosen_attribute
 
  
     else:
         if(check_rin):
+            #RIDO
             if(criterion=="information_gain"):
-                max_gain=0
-                chosen_attribute=features[0]
+                max_gain=-1
+                chosen_attribute=""
                 chosen_split=1e6
                 for attribute in features:
-                    if(information_gain(y,X[attribute],check_rin=True)[0]>max_gain):
-                        max_gain=information_gain(y,X[attribute],check_rin=True)[0]
-                        chosen_split=information_gain(y,X[attribute],check_rin=True)[1]
+                    if(info_rido(y,X[attribute])[0]>=max_gain):
+                        max_gain=info_rido(y,X[attribute])[0]
+                        chosen_split=info_rido(y,X[attribute])[1]
                         chosen_attribute=attribute
                 return chosen_attribute,chosen_split
         
         
             else:
-                max_gain=0
-                chosen_attribute=features[0]
+                max_gain=-1
+                chosen_attribute=""
                 chosen_split=1e6
                 for attribute in features:
-                    if(gini_gain(y,X[attribute],check_rin=True)[0]>max_gain):
-                        max_gain=gini_gain(y,X[attribute],check_rin=True)[0]
-                        chosen_split=gini_gain(y,X[attribute],check_rin=True)[1]
+                    if(gini_rido(y,X[attribute])[0]>max_gain):
+                        max_gain=gini_rido(y,X[attribute])[0]
+                        chosen_split=gini_rido(y,X[attribute])[1]
                         chosen_attribute=attribute
                 return chosen_attribute,chosen_split
 
               
         else:
+            #DIDO
             if(criterion=="information_gain"):
-                
-                # print(features)
-                max_gain=0
-                chosen_attribute=features[0]
+                max_gain=-1
+                chosen_attribute=""
                 for attribute in features:
-                    if(information_gain(y,X[attribute])>max_gain):
-                        max_gain=information_gain(y,X[attribute])
+                    if(info_dido(y,X[attribute])>max_gain):
+                        max_gain=info_dido(y,X[attribute])
                         chosen_attribute=attribute
                 return chosen_attribute
 
             else:
-                max_gain=0
-                chosen_attribute=features[0]
+                max_gain=-1
+                chosen_attribute=""
                 for attribute in features:
                     if(gini_gain(y,X[attribute])>max_gain):
                         max_gain=gini_gain(y,X[attribute])
                         chosen_attribute=attribute
                 return chosen_attribute
-
 
 def split_data(X: pd.DataFrame, y: pd.Series, attribute, value):
     """

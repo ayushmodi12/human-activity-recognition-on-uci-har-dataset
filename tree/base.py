@@ -21,7 +21,7 @@ class DecisionTree:
     criterion: Literal["information_gain", "gini_index"]  # criterion won't be used for regression
     max_depth: int  # The maximum depth the tree can grow to
 
-    def __init__(self, criterion, max_depth=8):
+    def __init__(self, criterion, max_depth=10):
         self.criterion = criterion
         self.max_depth = max_depth
         self.tree=None
@@ -102,8 +102,8 @@ class DecisionTree:
 
       #X['out']=y.copy()
       # print(X)
-      X_new=X
-      X_new.loc[:, 'out'] = y.copy()
+      X_new=X.copy(deep=True)
+      X_new.loc[:, 'out'] = y.copy(deep=True)
       X_new=X_new.sort_values(by=attribute,ascending=True)
       X_new=X_new.reset_index()
       X_new=X_new.drop(['index'],axis=1)
@@ -150,16 +150,18 @@ class DecisionTree:
       
       attribute,split_value=opt_split_attribute(X,y,criterion=self.criterion,features=pd.Series(list(X.columns)),check_rin=True)
       
-      X_new=X
-      X_new.loc[:, 'out'] = y.copy()
+      X_new=X.copy(deep=True)
+      X_new.loc[:, 'out'] = y.copy(deep=True)
       X_new=X_new.sort_values(by=attribute,ascending=True)
-      X_new=X_new.reset_index()
-      X_new=X_new.drop(['index'],axis=1)
+    #   X_new=X_new.reset_index()
+    #   X_new=X_new.drop(['index'],axis=1)
       tree={attribute:{}}
       
       data_subset_less=pd.DataFrame(X_new[X_new[attribute]<=split_value])
       y_less=pd.Series(data_subset_less['out'])
+    #   print(data_subset_less)
       df2=data_subset_less.drop(['out'],axis=1)
+    #   print(df2)
       # print(df2)
       # df3=df2.drop(attribute,axis=1)
       # print(df3)
@@ -187,7 +189,7 @@ class DecisionTree:
             else:
               return self.DIRO(X,y,self.max_depth)
         else:
-            if(check_ifreal(X[0])):
+            if(check_ifreal(X.iloc[:,0])):
               return self.RIDO(X,y,self.max_depth)
             else:
               return self.DIDO(X,y,self.max_depth)
@@ -268,7 +270,7 @@ class DecisionTree:
         Funtion to run the decision tree on test inputs
         """
        
-        if(check_ifreal(X[0])):
+        if(check_ifreal(X.iloc[:,0])):
               return self.predict_RIRO(X,self.tree)
         else:
               return self.predict_DIDO(X)
@@ -285,5 +287,6 @@ class DecisionTree:
             N: Class C
         Where Y => Yes and N => No
         """
+        return (self.tree)
         
         pass
