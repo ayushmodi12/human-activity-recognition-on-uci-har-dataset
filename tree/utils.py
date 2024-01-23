@@ -22,20 +22,11 @@ def mean_square_col(Y:pd.Series):
     mean=Y.mean()
     return (Y.apply(lambda x:(x-mean)**2).sum())/len(Y)
 
-# def mse(Y:pd.Series,attr:pd.Series) -> float:
-#     result=0
-#     total_val=len(attr)
-#     for attribute,val in attr.value_counts().items():
-#         result+=(val/total_val)*(mean_square_col(Y[attr==attribute]))
-        
-#     return result
-
 def entropy(Y: pd.Series) -> float:
     """
     Function to calculate the entropy
     """
     return Y.value_counts(normalize=True).apply(lambda x: -x*np.log2(x+1e-6)).sum()
-
 
 
 def gini_index(Y: pd.Series) -> float:
@@ -100,7 +91,6 @@ def info_rido(Y: pd.Series, attr: pd.Series):
                 split_val=avg
                 max_gain=gain
             lower_ind=upper_ind
-        # print(max_gain)
         return max_gain,split_val
 
 def gini_rido(Y: pd.Series, attr: pd.Series):

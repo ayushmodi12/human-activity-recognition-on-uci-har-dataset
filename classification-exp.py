@@ -30,8 +30,6 @@ for criteria in ["information_gain", "gini_index"]:
     y_hat = tree.predict(X_test)
     # tree.plot()
     print("Criteria :", criteria)
-    # print("RMSE: ", rmse(y_hat, y_test))
-    # print("MAE: ", mae(y_hat, y_test))
     print("Accuracy: ", accuracy(y_hat, y_test))
     for cls in y_test.unique():
         print(f"Class: {cls}")
@@ -74,22 +72,12 @@ def k_fold(X,y,criteria,depth,k=5)->int:
         predictions[i] = fold_predictions
         accuracies.append(fold_accuracy)
 
-    # Print the predictions and accuracies of each fold
-    # for i in range(k):
-    #     print("Fold {}: Accuracy: {:.4f}".format(i+1, accuracies[i]))
     return np.mean(accuracies)
 
-# opt_depth=0
-# opt_acc=0
-# for i in range (1,5):
-#     temp=k_fold(X,y,"information_gain",i)
-#     if(temp>opt_acc):
-#         opt_acc=temp
-#         opt_depth=i
-# opt_depth
+
         
 hyperparameters = {}
-hyperparameters['max_depth'] = [1,2,3,4,5,6,7,8,9,10]
+hyperparameters['max_depth'] = [1,2,3,4,5,6]
 hyperparameters['criteria_values'] = ["information_gain", "gini_index"]
 
 best_accuracy = 0
@@ -105,3 +93,7 @@ for max_depth in hyperparameters['max_depth']:
             count += 1
 hparam_df = pd.DataFrame(out).T
 print(hparam_df)
+max_val=np.argmax(hparam_df['val_accuracy'])
+opt_depth=hparam_df.at[max_val,'max_depth']
+criteria_val=hparam_df.at[max_val,'criterion']
+print(f"using 5-fold cross validation opt depth value for decision tree using criteria {criteria_val} is: ",opt_depth)
