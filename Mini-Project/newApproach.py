@@ -3,7 +3,8 @@ from sklearn import tree
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, ConfusionMatrixDisplay, confusion_matrix
 from scipy import stats
-
+import tsfel
+from FeatureExtractor.extractor import extract
 
 def energy(a):
     n = len(a)
@@ -89,6 +90,7 @@ for i in range(len(X_train_accx)):
     X_final_train_energy.append(energy(X_train_accx[i]))
     Y_final_train_energy.append(energy(X_train_accy[i]))
     Z_final_train_energy.append(energy(X_train_accz[i]))
+    
 
 
 X_final_train.append(X_final_train_mean)
@@ -110,12 +112,45 @@ X_final_train.append(X_final_train_mad)
 X_final_train.append(Y_final_train_mad)
 X_final_train.append(Z_final_train_mad)
 
+X_train_total_acceleration = []
+for i in range(len(X_train)):
+    temp = []
+    for j in range(len(X_train[0])):
+        temp.append(np.sqrt(np.dot(X_train[i][j],np.transpose(X_train[i][j]))))
+    X_train_total_acceleration.append(temp)
+
+X_train_total_acceleration = np.array(X_train_total_acceleration)
+X_final = []
+for i in range(len(X_train_total_acceleration)):
+    feature = []
+    feature.append(tsfel.auc(X_train_total_acceleration[i],50))
+    feature.append(tsfel.interq_range(X_train[i][:][0]))
+    feature.append(tsfel.interq_range(X_train[i][:][1]))
+    feature.append(tsfel.interq_range(X_train[i][:][2]))
+    feature.append(tsfel.entropy(X_train[i][:][0]))
+    feature.append(tsfel.entropy(X_train[i][:][1]))
+    feature.append(tsfel.entropy(X_train[i][:][2]))
+    feature.append(np.corrcoef(X_train[i][:][0],X_train[i][:][1])[0][1])
+    feature.append(np.corrcoef(X_train[i][:][1],X_train[i][:][2])[0][1])
+    feature.append(np.corrcoef(X_train[i][:][0],X_train[i][:][2])[0][1])
+    X_final.append(feature)
+
+X_final = np.array(X_final)
 X_final_train = np.array(X_final_train)
 X_final_train=np.transpose(X_final_train)
+
+X_train_temp = []
+for i in range(len(X_final_train)):
+    X_train_temp.append(list(X_final_train[i]) + list(X_final[i]))
+X_train_temp = np.array(X_train_temp)
+print(X_train_temp.shape)
+
+
 
 X_test_accx = []
 X_test_accy = []
 X_test_accz = []
+
 
 
 for i in range(len(X_test)):
@@ -192,18 +227,47 @@ X_final_test.append(X_final_test_mad)
 X_final_test.append(Y_final_test_mad)
 X_final_test.append(Z_final_test_mad)
 
+X_test_total_acceleration = []
+for i in range(len(X_test)):
+    temp = []
+    for j in range(len(X_test[0])):
+        temp.append(np.sqrt(np.dot(X_test[i][j],np.transpose(X_test[i][j]))))
+    X_test_total_acceleration.append(temp)
+
+X_test_total_acceleration = np.array(X_test_total_acceleration)
+
+X_final = []
+for i in range(len(X_test_total_acceleration)):
+    feature = []
+    feature.append(tsfel.auc(X_test_total_acceleration[i],50))
+    feature.append(tsfel.interq_range(X_test[i][:][0]))
+    feature.append(tsfel.interq_range(X_test[i][:][1]))
+    feature.append(tsfel.interq_range(X_test[i][:][2]))
+    feature.append(tsfel.entropy(X_test[i][:][0]))
+    feature.append(tsfel.entropy(X_test[i][:][1]))
+    feature.append(tsfel.entropy(X_test[i][:][2]))
+    feature.append(np.corrcoef(X_test[i][:][0],X_test[i][:][1])[0][1])
+    feature.append(np.corrcoef(X_test[i][:][1],X_test[i][:][2])[0][1])
+    feature.append(np.corrcoef(X_test[i][:][0],X_test[i][:][2])[0][1])
+    X_final.append(feature)
+
 X_final_test = np.array(X_final_test)
 X_final_test=np.transpose(X_final_test)
-
-print(X_final_test.shape)
+X_test_temp = []
+for i in range(len(X_final_test)):
+    X_test_temp.append(list(X_final_test[i]) + list(X_final[i]))
+X_test_temp = np.array(X_test_temp)
+print(X_test_temp.shape)
 
 # print(X_final_mean)
 
+# X_train_temp = extract(X_train)
+# X_test_temp = extract(X_test)
+# print(X_train_temp.shape)
+# print(X_test_temp.shape)
 
-        
-
-Recognizer = tree.DecisionTreeClassifier()
-Recognizer = Recognizer.fit(X_final_train, y_train)
+Recognizer = tree.DecisionTreeClassifier(random_state=43,criterion='gini')
+Recognizer = Recognizer.fit(X_train_temp, y_train)
 print("Descision Tree Trained Successfully!")
 
 # #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -224,7 +288,7 @@ print("Descision Tree Trained Successfully!")
 
 # X_test_total_acceleration = np.array(X_test_total_acceleration)
 
-y_pred = Recognizer.predict(X_final_test)
+y_pred = Recognizer.predict(X_test_temp)
 accuracy = accuracy_score(y_test,y_pred)
 print("Accuracy of the Decision Tree model is (max_depth == None): ",accuracy)
 con_mat = confusion_matrix(y_test,y_pred, labels=Recognizer.classes_)
