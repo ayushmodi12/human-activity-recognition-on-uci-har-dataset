@@ -164,7 +164,9 @@ FOR RIDO:
 ![Figure 8](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/4c87d5d1-975b-4f66-92ad-e36c9f67f752)  
 ![Figure 7](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/616a228c-916f-476f-9914-1477a18333f2)  
 ![Figure 9](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/bd8f971d-8578-4f6f-ba67-7045c8b23f9d)  
-![Figure 5](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/5165c007-d360-4a42-b969-8d65bf1b8709)  
+
+![RIRO_PRED](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/116496604/4a248816-29a0-4341-8a2e-c2eecc19e115)
+ 
 ![Figure 6](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/4e6b2edf-26ea-4409-a554-bb0999c96d10)
 
 
