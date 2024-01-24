@@ -19,7 +19,7 @@ df = df.drop(['car name'], axis=1)
 df = df.astype('float64')
 y = df['mpg']
 df = df.drop(['mpg'], axis=1)
-df = df.drop(['cylinders'], axis=1)
+# df = df.drop(['cylinders'], axis=1)
 # df = df.drop(['origin'], axis=1)
 df.columns = range(len(df.columns))
 y = y.astype('float64')
@@ -28,13 +28,13 @@ tree.fit(df,y)
 
 # print(tree.tree)
 y_hat = tree.predict(df)
-print("Results of our tree: ")
+print("Results of our decision tree: ")
 # tree.plot()
 print("RMSE: ", rmse(y_hat, y))
 print("MAE: ", mae(y_hat, y))
 # print(y_hat,y)
 
-print("Results of sklearn decision tree: ")
+
 
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error
@@ -47,8 +47,8 @@ Y_pred = regressor.predict(df)
 # Calculate MSE and RMSE
 mse = mean_squared_error(y, Y_pred)
 rmse = sqrt(mse)
-
+print("Results of sklearn decision tree: ")
 # print(f"Mean Squared Error: {mse}")
 print(f"RMSE: {rmse}")
 print("MAE: ", mae(Y_pred, y))
-print(regressor.get_depth())
+# print(regressor.get_depth())
