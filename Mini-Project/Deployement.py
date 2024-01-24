@@ -5,15 +5,22 @@ from sklearn import tree
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, ConfusionMatrixDisplay, confusion_matrix
+from FeatureExtractor.extractor import extract
 
 classes = {"Walking":1,"WalkingUpstairs":2,"WalkingDownstairs":3,"Sitting":4,"Standing":5,"Laying":6}
 
-X_test_collected = []
+X_test_collected_ax = []
+X_test_collected_ay = []
+X_test_collected_az = []
 y_test_collected = []
 print("Training the recognizer...")
+count = 0
 for folder in classes.keys():
     files = os.listdir("..\\Collected-Data\\"+folder)
     for file in files:
+        # if '' in file:
+        #     continue
+
         path = "..\\Collected-Data\\" + folder + "\\" + file
         # print(path)
         try: 
@@ -23,10 +30,23 @@ for folder in classes.keys():
         
         df = df[0:500]
         df.columns = ['time','ax','ay','az','at']
-        X_test_collected.append(np.array(df['at'])**2)
+
+        X_test_collected_ax.append(np.array(df['ax']))
+        X_test_collected_ay.append(np.array(df['ay']))
+        X_test_collected_az.append(np.array(df['az']))
         y_test_collected.append(classes[folder])
 
+X_test_collected = []
+for i in range(len(X_test_collected_ay)):
+    temp = []
+    for j in range(500):
+        temp.append([X_test_collected_ax[i][j],X_test_collected_ay[i][j],X_test_collected_az[i][j]])
+    X_test_collected.append(temp)
+
 X_test_collected = np.array(X_test_collected)
+
+X_test_collected = extract(X_test_collected)
+print(X_test_collected.shape)
 
 X_train = np.load('X_train.npy')
 y_train = np.load('y_train.npy')
@@ -37,34 +57,25 @@ y_val = np.load('y_val.npy')
 
 X_data = []
 for i in range(len(X_test)):
-    temp = []
-    for j in range(len(X_test[0])):
-        temp.append(np.dot(X_test[i][j],np.transpose(X_test[i][j])))
-    X_data.append(temp)
+    X_data.append(X_test[i])
 
 for i in range(len(X_train)):
-    temp = []
-    for j in range(len(X_train[0])):
-        temp.append(np.dot(X_train[i][j],np.transpose(X_train[i][j])))
-    X_data.append(temp)
+    X_data.append(X_train[i])
 
 for i in range(len(X_val)):
-    temp = []
-    for j in range(len(X_val[0])):
-        temp.append(np.dot(X_val[i][j],np.transpose(X_val[i][j])))
-    X_data.append(temp)
+    X_data.append(X_val[i])
 
-X_data = np.array(X_data)
-y_data = np.array(list(y_test)+list(y_train)+list(y_val))
+X_train = extract(X_data)
+y_train = np.array(list(y_test)+list(y_train)+list(y_val))
 # y_data = np.array(list(y_train)+list(y_val))
-X_train, X_val, y_train, y_val = train_test_split(X_data, y_data, test_size=0.3, random_state=42)
+# X_train, X_val, y_train, y_val = train_test_split(X_data, y_data, test_size=0.3, random_state=42)
 
-Recognizer = tree.DecisionTreeClassifier(max_depth=7, min_samples_split=5, criterion='gini', random_state=42)
+Recognizer = tree.DecisionTreeClassifier(max_depth=4, min_samples_split=2, criterion='gini', random_state=43)
 Recognizer.fit(X_train, y_train)
 
 y_pred = Recognizer.predict(X_test_collected)
 accuracy = accuracy_score(y_test_collected,y_pred)
-print("Accuracy of the Decision Tree model is (max_depth == None): ",accuracy)
+print("Accuracy of the Decision Tree model is: ",accuracy)
 con_mat = confusion_matrix(y_test_collected,y_pred, labels=Recognizer.classes_)
 print("Displaying Confusion Matrix...")
 disp = ConfusionMatrixDisplay(confusion_matrix=con_mat,display_labels=Recognizer.classes_)
