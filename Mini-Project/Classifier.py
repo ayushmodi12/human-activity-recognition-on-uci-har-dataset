@@ -2,7 +2,7 @@ import numpy as np
 from sklearn import tree
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, ConfusionMatrixDisplay, confusion_matrix
-
+from FeatureExtractor.extractor import extract
 classes = {"WALKING":1,"WALKING_UPSTAIRS":2,"WALKING_DOWNSTAIRS":3,"SITTING":4,"STANDING":5,"LAYING":6}
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -19,17 +19,17 @@ print("Successfully loaded Training Data...")
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 ### maybe we need to train with Total Acceleration, from paper....
-X_train_total_acceleration = []
-for i in range(len(X_train)):
-    temp = []
-    for j in range(len(X_train[0])):
-        temp.append(np.dot(X_train[i][j],np.transpose(X_train[i][j])))
-    X_train_total_acceleration.append(temp)
+# X_train_total_acceleration = []
+# for i in range(len(X_train)):
+#     temp = []
+#     for j in range(len(X_train[0])):
+#         temp.append(np.dot(X_train[i][j],np.transpose(X_train[i][j])))
+#     X_train_total_acceleration.append(temp)
 
-X_train_total_acceleration = np.array(X_train_total_acceleration)
-
+# X_train_total_acceleration = np.array(X_train_total_acceleration)
+Xtrain = extract(X_train)
 Recognizer = tree.DecisionTreeClassifier()
-Recognizer = Recognizer.fit(X_train_total_acceleration, y_train)
+Recognizer = Recognizer.fit(Xtrain, y_train)
 print("Descision Tree Trained Successfully!")
 
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -41,16 +41,16 @@ y_test = np.load('y_test.npy')
 
 print("Successfully loaded Test Data...")
 
-X_test_total_acceleration = []
-for i in range(len(X_test)):
-    temp = []
-    for j in range(len(X_test[0])):
-        temp.append(np.dot(X_test[i][j],np.transpose(X_test[i][j])))
-    X_test_total_acceleration.append(temp)
+# X_test_total_acceleration = []
+# for i in range(len(X_test)):
+#     temp = []
+#     for j in range(len(X_test[0])):
+#         temp.append(np.dot(X_test[i][j],np.transpose(X_test[i][j])))
+#     X_test_total_acceleration.append(temp)
 
-X_test_total_acceleration = np.array(X_test_total_acceleration)
-
-y_pred = Recognizer.predict(X_test_total_acceleration)
+# X_test_total_acceleration = np.array(X_test_total_acceleration)
+Xtest = extract(X_test)
+y_pred = Recognizer.predict(Xtest)
 accuracy = accuracy_score(y_test,y_pred)
 print("Accuracy of the Decision Tree model is (max_depth == None): ",accuracy)
 con_mat = confusion_matrix(y_test,y_pred, labels=Recognizer.classes_)
@@ -69,9 +69,9 @@ con_mats = []
 depths = [i for i in range(2,9)]
 for depth in depths:
     Recognizer = tree.DecisionTreeClassifier(max_depth=depth)
-    Recognizer = Recognizer.fit(X_train_total_acceleration, y_train)
-    y_pred = Recognizer.predict(X_test_total_acceleration)
-    y_pred_ontrain = Recognizer.predict(X_train_total_acceleration)
+    Recognizer = Recognizer.fit(Xtrain, y_train)
+    y_pred = Recognizer.predict(Xtest)
+    y_pred_ontrain = Recognizer.predict(Xtrain)
     acc_vals.append(accuracy_score(y_test,y_pred))
     acc_vals_ontrain.append(accuracy_score(y_train,y_pred_ontrain))
     con_mats.append(confusion_matrix(y_test,y_pred, labels=Recognizer.classes_))
