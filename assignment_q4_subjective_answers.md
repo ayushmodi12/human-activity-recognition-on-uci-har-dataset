@@ -62,13 +62,75 @@ FOR DIDO:
 
 
 FOR DIRO:  
-![image](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/a845bf2f-6f04-4c0e-8622-566de0064e07)
+![image](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/a845bf2f-6f04-4c0e-8622-566de0064e07)  
+
+
+FOR RIDO:  
+![image](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/47890a44-1359-4da5-83f6-96833253e79b)  
+
+## 2) Predicting 
+
+(i) Keeping the features same along with increasing dataset size for Avg Time  
+FOR RIRO:  
+![rido_predict](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/15fb4e1a-7086-4e40-9a73-1ad5b7d3ce6b)
+  
+
+FOR DIDO:  
+![dido_predict](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/5fccf576-1c5a-485a-b03b-3d867ccbbadc)
+
+
+FOR DIRO:  
+![diro_predict](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/fad0874b-1a02-4ed3-918d-1de7a8369712)
+
+
+FOR RIDO:  
+![rido_predict](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/a1bbd4ac-ff7e-4ae0-80fd-3e344823fe21)  
+
+(ii) Keeping the features same along with increasing dataset size for Standard Deviation of Time  
+FOR RIRO:  
+![riro_predict_std](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/f3fd1f10-3484-4de1-ad6b-7f6042923bec)
+
+
+
+FOR DIDO:  
+![dido_predict_std](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/8d15964c-fba1-4d7f-8daf-81fb6a27bad6)
+
+
+
+FOR DIRO:  
+![diro_predict_std](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/f1a0abb3-59a6-4563-a9a8-3ea71bc85492)
+
+
+
+FOR RIDO:  
+![rido_predict_std](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/e7a56cd8-9c0a-4ae2-afb5-c6afb51a015e)  
+
+(iii) Keeping the Datasize same along with increasing Number of Features for Avg Time  
+FOR RIRO:  
+![features_riro_predict_avg](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/675a8734-b08f-47df-92e1-a7c15be20e98)
+
+
+
+
+FOR DIDO:  
+![features_dido_predict_avg](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/398365e3-3f9d-4559-9013-88056ea33372)
+
+
+
+
+FOR DIRO:  
+![features_diro_predict_avg](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/794d6204-a33f-4f75-9823-3f0555faddfc)
 
 
 
 
 FOR RIDO:  
-![image](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/47890a44-1359-4da5-83f6-96833253e79b)
+![features_rido_predict_avg](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/8964c6b4-58a2-4e79-8623-a4ae076bba84)
+
+
+
+
+
 
 
 
