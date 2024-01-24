@@ -12,6 +12,8 @@ FOR DIRO:
 FOR RIDO:  
 ![rido_fit](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/f3de5358-8120-4d91-ba6d-356ddf151f3c)  
 
+By increasing the number of samples while keeping the features the same, time increases linearly with the size of the data. Theoretically worst case time complexity of the decision tree is O(N*M*d). where d is the depth of the tree.
+
 (ii) Keeping the features same along with increasing dataset size for Standard Deviation of Time  
 FOR RIRO:  
 ![riro_fit_std](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/feba0a45-a248-4c14-af0f-30e2b108980a)
@@ -86,6 +88,8 @@ FOR DIRO:
 FOR RIDO:  
 ![rido_predict](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/a1bbd4ac-ff7e-4ae0-80fd-3e344823fe21)  
 
+By increasing the number of features while keeping the data size the same, time increases linearly with the no. of features. Theoretically worst case time complexity of the decision tree is O(N*M*d). where d is the depth of the tree.
+
 (ii) Keeping the features same along with increasing dataset size for Standard Deviation of Time  
 FOR RIRO:  
 ![riro_predict_std](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/f3fd1f10-3484-4de1-ad6b-7f6042923bec)
@@ -127,6 +131,29 @@ FOR DIRO:
 FOR RIDO:  
 ![features_rido_predict_avg](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/8964c6b4-58a2-4e79-8623-a4ae076bba84)
 
+(iv) Keeping the Datasize same along with increasing Number of Features for Standard Deviation Time  
+FOR RIRO:  
+
+![image](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/a7a9b307-fcd4-4b18-b029-09b5294c1677)
+
+
+
+
+
+FOR DIDO:  
+![image](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/654b28fc-30a6-47a1-89c6-d35058b7f4fb)
+
+
+
+
+
+FOR DIRO:  
+![image](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/7909cfac-dc9d-429c-9cc4-a9366368d360)
+
+
+
+FOR RIDO:  
+![image](https://github.com/ES335-2024/assignment-1-ml-doofenshmirtz-evil-inc/assets/114944809/5712aac1-82c8-490f-8530-e6ad8b7d002d)
 
 
 
