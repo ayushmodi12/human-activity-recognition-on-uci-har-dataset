@@ -1,0 +1,1 @@
+# human-activity-recognition-on-uci-har-dataset
